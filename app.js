@@ -3,13 +3,17 @@
 require('dotenv').config();
 
 const express = require('express');
+const bodyParser = require('body-parser')
 const request = require('request');
 
 const app = express();
 
+app.use(bodyParser.json())
+
 const PORT = process.env.PORT
 
-app.get('/meet', meet);
+app.get('/', meet);
+app.post('/', notification);
 
 
 const options = {
@@ -21,14 +25,26 @@ const options = {
 	}
 };
 
-request(options, function (error, response, body) {
-	if (error) throw new Error(error);
+// request(options, function (error, response, body) {
+// 	if (error) throw new Error(error);
 
-	console.log(body);
-});
+// 	console.log(body);
+// });
 
 function meet(req, res) {
-    console.log('worked')
+	// console.log(req)
+    console.log('asd');
+}
+
+function notification(req,res) {
+	console.log('event', req.body);
+	console.log('\n \n \n ')
+	console.log('participant', req.body.payload.object.participant);
+
+	if (req.headers.authorization === process.env.verification_token) {
+		res.status(200).send('fine')
+	}
+	console.log('worked');
 }
 
 app.listen(PORT, () => console.log('hello form' + PORT))
