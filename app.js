@@ -5,17 +5,28 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser')
 const request = require('request');
+const mongoose = require('mongoose');
+
+const Zoom = require('./src/zoom-schema.js')
 
 const app = express();
 
 app.use(bodyParser.json())
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT;
+const MONGODB_URI = process.env.MONGODB_URI;
+const mongooseOptions = {
+	useNewUrlParser: true,
+	useCreateIndex: true,
+	useUnifiedTopology: true,
+	useFindAndModify: false,
+  };
+
 
 app.get('/', meet);
 app.post('/', notification);
 
-
+/** user info section */
 const options = {
 	method: 'GET',
 	// A non-existing sample userId is used in the example below. 
@@ -28,8 +39,11 @@ const options = {
 // request(options, function (error, response, body) {
 // 	if (error) throw new Error(error);
 
-// 	console.log(body);
+// 	console.log('info', body);
 // });
+
+
+/** functions section */
 
 function meet(req, res) {
 	// console.log(req)
@@ -44,7 +58,16 @@ function notification(req,res) {
 	if (req.headers.authorization === process.env.verification_token) {
 		res.status(200).send('fine')
 	}
+	if(req.body.payload.object.participant){
+		let record = new Zoom({account_id : req.body.payload.account_id, participant: req.body.payload.object.participant.user_name });
+		record.save();
+		// console.log(Zoom.read())
+	}
+
 	console.log('worked');
 }
+
+
+mongoose.connect(MONGODB_URI, mongooseOptions);
 
 app.listen(PORT, () => console.log('hello form' + PORT))
