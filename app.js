@@ -7,11 +7,11 @@ const bodyParser = require('body-parser')
 const request = require('request');
 const mongoose = require('mongoose');
 
-const Zoom = require('./src/zoom-schema.js')
+const zoom = require('./src/zoom-model.js')
 
 const app = express();
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 const PORT = process.env.PORT;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -55,13 +55,13 @@ function notification(req,res) {
 	console.log('\n \n \n ')
 	console.log('participant', req.body.payload.object.participant);
 
-	if (req.headers.authorization === process.env.verification_token) {
-		res.status(200).send('fine')
-	}
+	// if (req.headers.authorization === process.env.verification_token) {
+	// 	res.status(200).send('fine')
+	// }
 	if(req.body.payload.object.participant){
-		let record = new Zoom({account_id : req.body.payload.account_id, participant: req.body.payload.object.participant.user_name });
-		record.save();
-		// console.log(Zoom.read())
+		let record = zoom.create({account_id : req.body.payload.account_id, participant: req.body.payload.object.participant.user_name });
+		console.log('record', record);
+	// 	// console.log(Zoom.read())
 	}
 
 	console.log('worked');
@@ -70,4 +70,4 @@ function notification(req,res) {
 
 mongoose.connect(MONGODB_URI, mongooseOptions);
 
-app.listen(PORT, () => console.log('hello form' + PORT))
+app.listen(PORT, () => console.log('hello form' + PORT));
